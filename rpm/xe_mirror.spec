@@ -46,4 +46,5 @@ ssh-keyscan banner-src.ellucian.com localhost >>~mirror/.ssh/known_hosts
 echo "StrictHostKeyChecking no" >>~mirror/.ssh/config
 chmod 600 ~mirror/.ssh/*
 chown -R mirror ~mirror/.ssh
+chown mirror ~mirror
 which systemctl && echo "Enabling xe_mirror systemd service" && systemctl enable xe_mirror.service || echo "systemctl not present, not enabling service"
