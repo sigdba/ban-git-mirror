@@ -30,6 +30,9 @@ phases:
 
   post_build:
     commands:
+      # Check RPM dependencies
+      - rpm -qRp /root/rpmbuild/RPMS/x86_64/*.rpm
+
       # Test RPM installation
       - yum install -y /root/rpmbuild/RPMS/x86_64/*.rpm
       - ls -l /opt/xe_mirror

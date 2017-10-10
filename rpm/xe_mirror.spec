@@ -31,9 +31,12 @@ ${RPM_BUILD_ROOT}/opt/xe_mirror/ruby/bin/gem install net-ssh:2.9.2 git:1.2.9 git
 rm -f /opt/xe_mirror %{buildroot}/opt/xe_mirror/xe_mirror
 cp ${CODEBUILD_SRC_DIR}/ellucian_git_mirror.rb ${RPM_BUILD_ROOT}/opt/xe_mirror
 cp ${CODEBUILD_SRC_DIR}/mirror_conf.example.yml ${RPM_BUILD_ROOT}/opt/xe_mirror/mirror_conf.yml
+mkdir -p ${RPM_BUILD_ROOT}/lib/systemd/system
+cp ${CODEBUILD_SRC_DIR}/rpm/xe_mirror_systemd.service ${RPM_BUILD_ROOT}/lib/systemd/system/xe_mirror.service
 
 %files
 /opt/xe_mirror
+/lib/systemd/system/xe_mirror.service
 
 %post
 useradd -M -s /bin/bash mirror || echo "mirror user already exists"
@@ -42,3 +45,4 @@ chmod 700 ~mirror/.ssh
 ssh-keyscan banner-src.ellucian.com localhost >>~mirror/.ssh/known_hosts
 echo "StrictHostKeyChecking no" >>~mirror/.ssh/config
 chmod 600 ~mirror/.ssh/*
+which systemctl && echo "Enabling xe_mirror systemd service" && systemctl enable xe_mirror.service
