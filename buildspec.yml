@@ -8,22 +8,33 @@ env:
 phases:
   install:
     commands:
+      # Install prerequisite packages
       - yum install -y wget rpm-build rpmdevtools redhat-rpm-config gcc git libffi-devel openssl-devel readline-devel zlib-devel bzip2
+
   pre_build:
     commands:
+      # Prepare rpmbuild environment
       - rpmdev-setuptree
       - echo '%_topdir %(echo $HOME)/rpmbuild' > ~/.rpmmacros
       - cp rpm/xe_mirror.spec ~/rpmbuild/SPECS
+
+      # Download Ruby source using spectool
       - cd ~/rpmbuild/SOURCES
       - spectool -g ~/rpmbuild/SPECS/xe_mirror.spec
+
   build:
     commands:
+      # Build RPM
       - cd ~/rpmbuild/SPECS
       - rpmbuild -v -bb xe_mirror.spec
+
   post_build:
     commands:
+      # Test RPM installation
       - yum install -y /root/rpmbuild/RPMS/x86_64/*.rpm
       - ls -l /opt/xe_mirror
+      - ls -l /home/mirror/.ssh
+
 artifacts:
   files:
     - ellucian_git_mirror.rb

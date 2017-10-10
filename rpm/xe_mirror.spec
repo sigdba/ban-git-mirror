@@ -34,3 +34,11 @@ cp ${CODEBUILD_SRC_DIR}/mirror_conf.example.yml ${RPM_BUILD_ROOT}/opt/xe_mirror/
 
 %files
 /opt/xe_mirror
+
+%post
+useradd -M -s /bin/bash mirror || echo "mirror user already exists"
+mkdir -p ~mirror/.ssh
+chmod 700 ~mirror/.ssh
+ssh-keyscan banner-src.ellucian.com localhost >>~mirror/.ssh/known_hosts
+echo "StrictHostKeyChecking no" >>~mirror/.ssh/config
+chmod 600 ~mirror/.ssh/*

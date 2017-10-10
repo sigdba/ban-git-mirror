@@ -50,7 +50,7 @@ Resources:
       Artifacts:
         Type: S3
         Location: r.sigcorp.com
-        Name: xe_mirror_codebuild
+        Name: xe_mirror
         NamespaceType: NONE
         Packaging: NONE
       Description: Builds XE Mirror Script RPM
