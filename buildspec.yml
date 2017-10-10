@@ -9,7 +9,7 @@ phases:
   install:
     commands:
       # Install prerequisite packages
-      - yum install -y wget rpm-build rpmdevtools redhat-rpm-config gcc git libffi-devel openssl-devel readline-devel zlib-devel bzip2
+      - yum install -y wget rpm-build rpmdevtools redhat-rpm-config gcc git libffi-devel openssl-devel readline-devel zlib-devel bzip2 aws-cli
 
   pre_build:
     commands:
@@ -37,6 +37,9 @@ phases:
       - yum install -y /root/rpmbuild/RPMS/x86_64/*.rpm
       - ls -l /opt/xe_mirror
       - ls -l /home/mirror/.ssh
+
+      # Decrypt the artifacts
+      - aws s3 cp s3://r.sigcorp.com/xe_mirror_encrypted/* s3://r.sigcorp.com/xe_mirror/
 
 artifacts:
   files:
