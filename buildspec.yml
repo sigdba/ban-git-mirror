@@ -21,9 +21,11 @@ phases:
       - cd ~/rpmbuild/SPECS
       - rpmbuild -v -bb xe_mirror.spec
   post_build:
-    commands: []
+    commands:
+      - yum install -y /root/rpmbuild/RPMS/x86_64/*.rpm
+      - ls -l /opt/xe_mirror
 artifacts:
   files:
     - ellucian_git_mirror.rb
-    - /root/rpmbuild/RPMS/*.rpm
+    - /root/rpmbuild/RPMS/x86_64/*.rpm
   discard-paths: yes

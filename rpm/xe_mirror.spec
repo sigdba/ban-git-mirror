@@ -29,6 +29,8 @@ ln -sf ${RPM_BUILD_ROOT}/opt/xe_mirror /opt/xe_mirror
 ${RPM_BUILD_ROOT}/opt/xe_mirror/ruby/bin/gem install net-ssh:2.9.2 git:1.2.9 gitlab:3.7.0
 %{buildroot}/opt/xe_mirror/ruby/bin/gem install net-ssh:2.9.2 git:1.2.9 gitlab:3.7.0
 rm -f /opt/xe_mirror %{buildroot}/opt/xe_mirror/xe_mirror
+cp ${CODEBUILD_SRC_DIR}/ellucian_git_mirror.rb ${RPM_BUILD_ROOT}/opt/xe_mirror
+cp ${CODEBUILD_SRC_DIR}/mirror_conf.example.yml ${RPM_BUILD_ROOT}/opt/xe_mirror/mirror_conf.yml
 
 %files
 /opt/xe_mirror
