@@ -1,0 +1,70 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+
+Resources:
+  LogGroup:
+    Type: "AWS::Logs::LogGroup"
+    Properties:
+      LogGroupName: /aws/codebuild/xe_mirror
+
+  ServiceRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - codebuild.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "logs:CreateLogStream"
+                  - "logs:PutLogEvents"
+                Resource:
+                  - !GetAtt LogGroup.Arn
+                  - !Sub "${LogGroup.Arn}:*"
+              - Effect: Allow
+                Action:
+                  - "s3:PutObject"
+                  - "s3:GetObject"
+                  - "s3:GetObjectVersion"
+                Resource:
+                  - "arn:aws:s3:::r.sigcorp.com/*"
+              - Effect: Allow
+                Action:
+                  - "codecommit:GitPull"
+                Resource:
+                  - "arn:aws:codecommit:us-east-1:803071473383:xe_mirror"
+
+  CodeBuildProject:
+    Type: "AWS::CodeBuild::Project"
+    Properties:
+      Artifacts:
+        Type: S3
+        Location: r.sigcorp.com
+        Name: xe_mirror_codebuild
+        NamespaceType: BUILD_ID
+        Packaging: NONE
+      Description: Builds XE Mirror Script RPM
+      Environment:
+        ComputeType: BUILD_GENERAL1_SMALL
+        EnvironmentVariables: []
+        Image: aws/codebuild/eb-python-2.7-amazonlinux-64:2.1.6
+        Type: LINUX_CONTAINER
+      Name: xe_mirror
+      ServiceRole: !GetAtt ServiceRole.Arn
+      Source:
+        Location: https://git-codecommit.us-east-1.amazonaws.com/v1/repos/xe_mirror
+        Type: CODECOMMIT
+      Tags:
+        - Key: Name
+          Value: !Ref AWS::StackName
+      TimeoutInMinutes: 90

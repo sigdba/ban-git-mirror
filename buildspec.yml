@@ -1,0 +1,29 @@
+---
+version: 0.2
+
+env:
+  variables: {}
+  parameter-store: {}
+
+phases:
+  install:
+    commands:
+      - yum install -y wget rpm-build rpmdevtools redhat-rpm-config gcc git libffi-devel openssl-devel readline-devel zlib-devel bzip2
+  pre_build:
+    commands:
+      - rpmdev-setuptree
+      - echo '%_topdir %(echo $HOME)/rpmbuild' > ~/.rpmmacros
+      - cp rpm/xe_mirror.spec ~/rpmbuild/SPECS
+      - cd ~/rpmbuild/SPECS
+      - spectool -g xe_mirror.spec
+  build:
+    commands:
+      - cd ~/rpmbuild/SPECS
+      - rpmbuild -v -bb xe_mirror.spec
+  post_build:
+    commands: []
+artifacts:
+  files:
+    - ellucian_git_mirror.rb
+    - /root/rpmbuild/RPMS/*.rpm
+  discard-paths: yes
