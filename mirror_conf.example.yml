@@ -1,0 +1,9 @@
+mirror:
+    root: /home/mirror/mirror
+    ssh_key: /home/mirror/.ssh/id_rsa
+gitlab:
+    url: http://localhost/api/v3
+    token: <TOKEN>
+skip:
+  - banner/apps/banner_student_success_api
+  - banner/plugins/banner_finaid_validation
