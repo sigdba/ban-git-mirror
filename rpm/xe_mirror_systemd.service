@@ -6,7 +6,7 @@ Type=simple
 Restart=on-failure
 User=mirror
 Group=mirror
-ExecStart=/opt/xe_mirror/ruby/bin/ruby /opt/xe_mirror/ellucian_git_mirror.rb /opt/xe_mirror/xe_mirror_conf.yml
+ExecStart=/opt/xe_mirror/ruby/bin/ruby /opt/xe_mirror/ellucian_git_mirror.rb /opt/xe_mirror/mirror_conf.yml
 
 [Install]
 WantedBy=multi-user.target
