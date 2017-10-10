@@ -14,8 +14,8 @@ phases:
       - rpmdev-setuptree
       - echo '%_topdir %(echo $HOME)/rpmbuild' > ~/.rpmmacros
       - cp rpm/xe_mirror.spec ~/rpmbuild/SPECS
-      - cd ~/rpmbuild/SPECS
-      - spectool -g xe_mirror.spec
+      - cd ~/rpmbuild/SOURCES
+      - spectool -g ~/rpmbuild/SPECS/xe_mirror.spec
   build:
     commands:
       - cd ~/rpmbuild/SPECS
