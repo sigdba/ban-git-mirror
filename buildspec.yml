@@ -38,11 +38,11 @@ phases:
       - ls -l /opt/xe_mirror
       - ls -l /home/mirror/.ssh
 
-      # Decrypt the artifacts
-      - aws s3 cp s3://r.sigcorp.com/xe_mirror_encrypted/* s3://r.sigcorp.com/xe_mirror/
+      # Upload the artifacts
+      - aws s3 cp /root/rpmbuild/RPMS/x86_64/*.rpm ${CODEBUILD_SRC_DIR}/ellucian_git_mirror.rb s3://r.sigcorp.com/xe_mirror/
 
 artifacts:
-  files:
-    - ellucian_git_mirror.rb
-    - /root/rpmbuild/RPMS/x86_64/*.rpm
+  files: []
+    # - ellucian_git_mirror.rb
+    # - /root/rpmbuild/RPMS/x86_64/*.rpm
   discard-paths: yes
