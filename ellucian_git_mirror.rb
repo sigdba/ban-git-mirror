@@ -51,6 +51,10 @@ class Conf
     @conf['mirror']['interval'] || 21_600
   end
 
+  def project_visibility
+    @conf['gitlab']['project_visibility'] || 10
+  end
+
   def ssh_key
     @conf['mirror']['ssh_key']
   end
@@ -179,12 +183,20 @@ def gitlab_project(conf)
   group_id = gitlab_group(conf).id
 
   p = conf.gitlab.project_search(conf.repo_name).select { |q| q.name == conf.repo_name && q.namespace.id == group_id }.first
-  return p if p
+
+  if p
+    if p.visibility_level != conf.project_visibility
+      log.info "Changing visibility of #{p.name} from #{p.visibility_level} to #{conf.project_visibility}"
+      conf.gitlab.edit_project(p.id, visibility_level: conf.project_visibility)
+    end
+    return p
+  end
 
   log.info "Creating new GitLab project: #{conf.repo_name}"
   conf.gitlab.create_project(conf.repo_name,
                              group_id: group_id,
-                             namespace_id: group_id)
+                             namespace_id: group_id,
+                             visibility_level: conf.project_visibility)
 end
 
 # Returns information about the group of the repository specified in conf. It
