@@ -1,5 +1,6 @@
 #!/usr/bin/ruby
 # rubocop:disable Metrics/AbcSize
+# rubocop:disable Metrics/LineLength
 
 require 'git'
 require 'net/ssh'
@@ -7,11 +8,11 @@ require 'pp'
 require 'yaml'
 require 'gitlab'
 
-fail 'usage: ellucian_git_mirror.rb <conf_yml>' unless ARGV.length == 1
+raise 'usage: ellucian_git_mirror.rb <conf_yml>' unless ARGV.length == 1
 
 # To avoid a group search for each repository, the groups are cached. This cache
 # is flushed at the start of cycle of mirroring.
-GROUP_CACHE = {}
+$group_cache = {}
 
 def log
   Logger.new(STDOUT)
@@ -23,8 +24,8 @@ class Conf
   def initialize(path)
     log.info "Loading configuration: #{path}"
     @conf = YAML.load_file(path)
-    @conf['mirror']['ssh_key'] || fail("key not found in #{path}: mirror/ssh_key")
-    @conf['mirror']['root'] || fail("key not found in #{path}: mirror/root")
+    @conf['mirror']['ssh_key'] || raise("key not found in #{path}: mirror/ssh_key")
+    @conf['mirror']['root'] || raise("key not found in #{path}: mirror/root")
   end
 
   def origin_host
@@ -134,11 +135,11 @@ end
 def mirror(conf)
   return Git.bare(conf.bare_path, log: log) if mirror_skip?(conf)
 
-  if File.directory?(conf.bare_path)
-    ret = mirror_fetch(conf)
-  else
-    ret = mirror_clone(conf)
-  end
+  ret = if File.directory?(conf.bare_path)
+          mirror_fetch(conf)
+        else
+          mirror_clone(conf)
+        end
   FileUtils.touch(conf.touch_file)
   ret
 end
@@ -203,11 +204,11 @@ end
 # wraps the real method to provide simple caching.
 def gitlab_group(conf)
   path = conf.group_path
-  return GROUP_CACHE[path] if GROUP_CACHE.has_key?(path)
+  return $group_cache[path] if $group_cache.key?(path)
 
   ret = _gitlab_group(path, conf)
-  GROUP_CACHE[path] = ret
-  return ret
+  $group_cache[path] = ret
+  ret
 end
 
 # Return information about the group of the group on path.
@@ -215,7 +216,7 @@ end
 # no reference to any repository-specifc details in conf.
 def _gitlab_group(path, conf)
   if path.include?('/')
-    parts = path.reverse.split('/',2).map {|s| s.reverse}
+    parts = path.reverse.split('/', 2).map(&:reverse)
     parent_id = _gitlab_group(parts[1], conf).id
     group_name = parts.first
   else
@@ -228,10 +229,8 @@ def _gitlab_group(path, conf)
   return g if g
 
   log.info "Creating new GitLab group: #{path} (Parent ID: #{parent_id})"
-  conf.gitlab.create_group(group_name, group_name, {
-      description: "Ellucian Mirror: #{path}",
-      parent_id: parent_id
-    })
+  conf.gitlab.create_group(group_name, group_name, description: "Ellucian Mirror: #{path}",
+                                                   parent_id: parent_id)
 end
 
 log.info 'Starting Ellucian XE mirror process'
@@ -239,7 +238,7 @@ conf = Conf.new(ARGV[0])
 
 loop do
   log.info 'Fetching repository list from Ellucian'
-  GROUP_CACHE.clear
+  $group_cache.clear
   repo_list = Net::SSH.start(conf.origin_host,
                              conf.origin_user,
                              keys: [conf.ssh_key],
@@ -248,21 +247,20 @@ loop do
   end
 
   repo_list.map(&:split)
-    .select { |a| a[0] == 'R' }
-    .map(&:last)
-    .select { |l| l.start_with?('banner/') }
-    .select { |l| !conf.skip_paths.include?(l) }
-    .map { |path| RepoConf.new(conf, path) }
-    .each do |c|
-      begin
-        repo = mirror(c)
-        gitlab_update(c, repo) if conf.gitlab?
-      rescue => e
-        log.warn "Error while mirroring #{c.bare_name}:\n#{e.message}\n#{e.backtrace.inspect}\nCarrying On."
-      end
+           .select { |a| a[0] == 'R' }
+           .map(&:last)
+           .select { |l| l.start_with?('banner/') }
+           .select { |l| !conf.skip_paths.include?(l) }
+           .map { |path| RepoConf.new(conf, path) }
+           .each do |c|
+    begin
+      repo = mirror(c)
+      gitlab_update(c, repo) if conf.gitlab?
+    rescue => e
+      log.warn "Error while mirroring #{c.bare_name}:\n#{e.message}\n#{e.backtrace.inspect}\nCarrying On."
     end
+  end
   log.info "All done. Sleeping #{conf.interval_secs} seconds..."
 
   sleep conf.interval_secs
 end
-
