@@ -32,4 +32,4 @@ cd $RUBY_NAME
 make
 make install
 
-${RUBY_BIN}/gem install net-ssh:2.9.2 git:1.2.9 gitlab:3.7.0
+${RUBY_BIN}/gem install net-ssh:2.9.2 git:1.2.9 gitlab:4.5.0
