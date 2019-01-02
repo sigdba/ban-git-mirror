@@ -236,6 +236,9 @@ end
 log.info 'Starting Ellucian XE mirror process'
 conf = Conf.new(ARGV[0])
 
+# Ugly hack to disable certificate validation for API calls
+OpenSSL::SSL::VERIFY_PEER = OpenSSL::SSL::VERIFY_NONE
+
 loop do
   log.info 'Fetching repository list from Ellucian'
   $group_cache.clear
