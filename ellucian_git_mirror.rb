@@ -41,7 +41,7 @@ class Conf
   end
 
   def skip_paths
-    @conf['mirror']['skip'] || []
+    @conf['skip'] || []
   end
 
   def refresh_delay_secs
@@ -245,6 +245,8 @@ loop do
                              keys_only: true) do |ssh|
     ssh.exec!('info').lines
   end
+
+  log.debug "Skip list: #{conf.skip_paths}"
 
   repo_list.map(&:split)
            .select { |a| a[0] == 'R' }

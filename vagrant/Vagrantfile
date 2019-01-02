@@ -1,6 +1,25 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+# If you have errors with vboxfs:
+# vagrant plugin install vagrant-vbguest
+# vagrant reload
+#
+# If this doesn't work, to manually install guest additions:
+# sudo su -
+# yum update -y kernel*  # REBOOT IF UPDATES APPLIED
+# rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+#
+# To determine IP address: ip a
+#
+# Example config:
+#
+# external_url 'http://172.16.16.207'
+# gitlab_rails['gitlab_ssh_host'] = '172.16.16.207'
+#
+# To use the dev version:
+# sudo ln -sf /mnt/code/ellucian_git_mirror.rb /opt/xe_mirror/ellucian_git_mirror.rb
+
 Vagrant.configure("2") do |config|
   config.vm.box = "centos/7"
 
@@ -31,6 +50,8 @@ Vagrant.configure("2") do |config|
     # Customize the amount of memory on the VM:
     vb.memory = "4096"
   end
+
+  config.vm.synced_folder "..", "/mnt/code"
 
   # View the documentation for the provider you are using for more
   # information on available options.
