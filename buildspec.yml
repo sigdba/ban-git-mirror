@@ -39,7 +39,7 @@ phases:
       - ls -l /home/mirror/.ssh
 
       # Upload the artifacts
-      - aws s3 cp /root/rpmbuild/RPMS/x86_64/xe_mirror-4.0-1.amzn1.x86_64.rpm s3://r.sigcorp.com/xe_mirror/
+      - aws s3 cp /root/rpmbuild/RPMS/x86_64/xe_mirror-4.1-1.amzn1.x86_64.rpm s3://r.sigcorp.com/xe_mirror/
       - aws s3 cp ${CODEBUILD_SRC_DIR}/ellucian_git_mirror.rb s3://r.sigcorp.com/xe_mirror/
 
 artifacts:

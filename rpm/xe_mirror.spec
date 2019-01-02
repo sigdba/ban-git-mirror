@@ -1,5 +1,5 @@
 Name:     xe_mirror
-Version:  4.0
+Version:  4.1
 Release:  1%{?dist}
 Requires: libffi,openssl,readline,zlib,git
 Summary:  XE Mirror Script
