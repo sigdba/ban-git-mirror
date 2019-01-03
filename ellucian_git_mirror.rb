@@ -53,7 +53,7 @@ class Conf
   end
 
   def project_visibility
-    @conf['gitlab']['project_visibility'] || 10
+    @conf['gitlab']['project_visibility'] || 'internal'
   end
 
   def ssh_key
@@ -186,11 +186,14 @@ def gitlab_project(conf)
   p = conf.gitlab.project_search(conf.repo_name).select { |q| q.name == conf.repo_name && q.namespace.id == group_id }.first
 
   if p
-    # Temporarily disabled due to compatibility change.
-    # if p.visibility_level != conf.project_visibility
-    #   log.info "Changing visibility of #{p.name} from #{p.visibility_level} to #{conf.project_visibility}"
-    #   conf.gitlab.edit_project(p.id, visibility_level: conf.project_visibility)
-    # end
+    begin
+      if p.visibility != conf.project_visibility
+        log.info "Changing visibility of #{p.name} from #{p.visibility} to #{conf.project_visibility}"
+        conf.gitlab.edit_project(p.id, visibility: conf.project_visibility)
+      end
+    rescue => e
+      log.warn "Error updating project visibility: #{e.message}"
+    end
     return p
   end
 
@@ -198,7 +201,7 @@ def gitlab_project(conf)
   conf.gitlab.create_project(conf.repo_name,
                              group_id: group_id,
                              namespace_id: group_id,
-                             visibility_level: conf.project_visibility)
+                             visibility: conf.project_visibility)
 end
 
 # Returns information about the group of the repository specified in conf. It
