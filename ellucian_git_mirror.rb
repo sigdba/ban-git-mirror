@@ -200,8 +200,7 @@ def gitlab_project(conf)
   log.info "Creating new GitLab project: #{conf.repo_name}"
   conf.gitlab.create_project(conf.repo_name,
                              group_id: group_id,
-                             namespace_id: group_id,
-                             visibility: conf.project_visibility)
+                             namespace_id: group_id)
 end
 
 # Returns information about the group of the repository specified in conf. It
