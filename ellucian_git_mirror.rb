@@ -186,10 +186,11 @@ def gitlab_project(conf)
   p = conf.gitlab.project_search(conf.repo_name).select { |q| q.name == conf.repo_name && q.namespace.id == group_id }.first
 
   if p
-    if p.visibility_level != conf.project_visibility
-      log.info "Changing visibility of #{p.name} from #{p.visibility_level} to #{conf.project_visibility}"
-      conf.gitlab.edit_project(p.id, visibility_level: conf.project_visibility)
-    end
+    # Temporarily disabled due to compatibility change.
+    # if p.visibility_level != conf.project_visibility
+    #   log.info "Changing visibility of #{p.name} from #{p.visibility_level} to #{conf.project_visibility}"
+    #   conf.gitlab.edit_project(p.id, visibility_level: conf.project_visibility)
+    # end
     return p
   end
 
