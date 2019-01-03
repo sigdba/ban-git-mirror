@@ -1,6 +1,6 @@
 %define __requires_exclude /usr/bin/ruby
 
-%define buildcode  %{getenv:BUILD_CODE}
+%define buildcode  %{getenv:VERSION}
 
 Name:     xe_mirror
 Version:  %buildcode
