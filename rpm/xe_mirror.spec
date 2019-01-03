@@ -1,10 +1,11 @@
 %define __requires_exclude /usr/bin/ruby
 
-%define buildcode  %{getenv:VERSION}
+%define version %{getenv:VERSION}
+%define release %{getenv:RELEASE}
 
 Name:     xe_mirror
-Version:  %buildcode
-Release:  1%{?dist}
+Version:  %version
+Release:  %release%{?dist}
 Requires: libffi,openssl,readline,zlib,git
 Summary:  XE Mirror Script
 URL:      http://sigcorp.com
@@ -28,11 +29,15 @@ rm -rf "$RPM_BUILD_ROOT"
 %install
 %make_install
 ln -sf ${RPM_BUILD_ROOT}/opt/xe_mirror /opt/xe_mirror
-${RPM_BUILD_ROOT}/opt/xe_mirror/ruby/bin/gem install net-ssh:2.9.2 git:1.2.9 gitlab:4.5.0
-%{buildroot}/opt/xe_mirror/ruby/bin/gem install net-ssh:2.9.2 git:1.2.9 gitlab:4.5.0
+${RPM_BUILD_ROOT}/opt/xe_mirror/ruby/bin/gem update --system
+%{buildroot}/opt/xe_mirror/ruby/bin/gem update --system
+cd ${CODEBUILD_SRC_DIR}
+${RPM_BUILD_ROOT}/opt/xe_mirror/ruby/bin/bundle install
+%{buildroot}/opt/xe_mirror/ruby/bin/bundle install
 rm -f /opt/xe_mirror %{buildroot}/opt/xe_mirror/xe_mirror
 cp ${CODEBUILD_SRC_DIR}/ellucian_git_mirror.rb ${RPM_BUILD_ROOT}/opt/xe_mirror
 cp ${CODEBUILD_SRC_DIR}/mirror_conf.example.yml ${RPM_BUILD_ROOT}/opt/xe_mirror/mirror_conf.yml
+cp ${CODEBUILD_SRC_DIR}/Gemfile ${RPM_BUILD_ROOT}/opt/xe_mirror
 mkdir -p ${RPM_BUILD_ROOT}/lib/systemd/system
 cp ${CODEBUILD_SRC_DIR}/rpm/xe_mirror_systemd.service ${RPM_BUILD_ROOT}/lib/systemd/system/xe_mirror.service
 
