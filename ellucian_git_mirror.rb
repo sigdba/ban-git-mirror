@@ -28,6 +28,10 @@ class Conf
     @conf['mirror']['root'] || raise("key not found in #{path}: mirror/root")
   end
 
+  def fail_fast
+    @conf['fail_fast']
+  end
+
   def origin_host
     @conf['mirror']['git_host'] || 'banner-src.ellucian.com'
   end
@@ -266,6 +270,7 @@ loop do
       gitlab_update(c, repo) if conf.gitlab?
     rescue => e
       log.warn "Error while mirroring #{c.bare_name}:\n#{e.message}\n#{e.backtrace.inspect}\nCarrying On."
+      raise 'fail_fast enabled, aborting' if conf.fail_fast
     end
   end
   log.info "All done. Sleeping #{conf.interval_secs} seconds..."
