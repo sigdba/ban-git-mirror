@@ -80,6 +80,10 @@ class Conf
     @conf['gitlab']['token']
   end
 
+  def gitlab_group_prefix
+    @conf['gitlab']['group_prefix'] || ''
+  end
+
   def gitlab
     Gitlab.client(endpoint: gitlab_url, private_token: gitlab_token)
   end
@@ -103,26 +107,35 @@ class RepoConf
     @conf.send(method, *args)
   end
 
+  # Friendly name of the repository. It is the last element of the repository path.
   def repo_name
     File.basename(@path)
   end
 
+  # Full repository path as might be used to construct URLs. Note that does NOT include the GitLab group prefix (if any)
   def base_path
     @path
   end
 
+  # Repository path of the enclosing group in GitLab. This includes the GitLab group prefix (if any).
   def group_path
-    File.dirname(base_path)
+    # File.dirname(base_path)
+    ret = File.join(gitlab_group_prefix, File.dirname(base_path)).sub(%r{^/+}, '')
+    raise 'Unexpected error: File.join() returned nil' if ret.nil?
+    ret
   end
 
+  # Filesystem path of the intermediate repository's parent directory
   def parent_path
     "#{@conf.mirror_root}/#{File.dirname(@path)}"
   end
 
+  # Directory name for the intermediate bare repository on the filesystem
   def bare_name
     "#{repo_name}.git"
   end
 
+  # Full path to the intermediate bare repository on the filesystem
   def bare_path
     "#{parent_path}/#{bare_name}"
   end
@@ -220,7 +233,7 @@ end
 
 # Return information about the group of the group on path.
 # NB: This method only uses conf to get a handle on the GitLab client. It makes
-# no reference to any repository-specifc details in conf.
+# no reference to any repository-specific details in conf.
 def _gitlab_group(path, conf)
   if path.include?('/')
     parts = path.reverse.split('/', 2).map(&:reverse)
