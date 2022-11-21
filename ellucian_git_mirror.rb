@@ -275,6 +275,7 @@ loop do
            .select { |a| a[0] == 'R' }
            .map(&:last)
            .select { |l| l.start_with?('banner/') }
+           .reject { |l| l.end_with?('*') }
            .select { |l| !conf.skip_paths.include?(l) }
            .map { |path| RepoConf.new(conf, path) }
            .each do |c|
